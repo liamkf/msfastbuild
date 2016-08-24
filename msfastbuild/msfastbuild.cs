@@ -1,3 +1,4 @@
+﻿// MSFASTBuild.cs - Generates and executes a bff file for fastbuild from a .sln or .vcxproj.
 // Copyright 2016 Liam Flookes and Yassine Riahi
 // Available under an MIT license. See license file on github for details.
 using System;
@@ -41,6 +42,7 @@ namespace msfastbuild
         HelpText = "Generate the bff file without calling FASTBuild.")]
         public bool BffOnly { get; set; }
 
+        [Option('r', "regen", DefaultValue = true, //true for dev
         HelpText = "Always regenerate the bff file.")]
         public bool AlwaysRegenerate { get; set; }
 
@@ -122,6 +124,7 @@ namespace msfastbuild
 						ProjectsToBuild.Add(Path.GetFullPath(CommandLineOptions.Project));
 					}
 
+					SolutionDir = Path.GetDirectoryName(Path.GetFullPath(CommandLineOptions.Solution));
 					SolutionDir = SolutionDir.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 					if(SolutionDir.Last() != Path.AltDirectorySeparatorChar)
 						SolutionDir += Path.AltDirectorySeparatorChar;
@@ -148,6 +151,7 @@ namespace msfastbuild
 			foreach(MSFBProject project in EvaluatedProjects)
 			{
 				CurrentProject = project;
+				CPPTasksAssembly = Assembly.LoadFrom(CurrentProject.Proj.GetPropertyValue("VCTargetsPath14") + "Microsoft.Build.CPPTasks.Common.dll"); //Dodgy? VCTargetsPath may not be there...
 				BFFOutputFilePath = Path.GetDirectoryName(CurrentProject.Proj.FullPath) + "\\" + Path.GetFileName(CurrentProject.Proj.FullPath) + "_" + CommandLineOptions.Config.Replace(" ", "") + "_" + CommandLineOptions.Platform.Replace(" ", "") + ".bff";
 				GenerateBffFromVcxproj(CommandLineOptions.Config, CommandLineOptions.Platform);
 
@@ -243,6 +247,7 @@ namespace msfastbuild
 
             string BatchFileText = "@echo off\n%comspec% /c \"\"" + VCBasePath
                 + "vcvarsall.bat\" " + (Platform == "Win32" ? "x86" : "x64") + " " 
+                + (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") // Only VS2015R3 specifies the WinSDK?
                 + " && \"" + CommandLineOptions.fbPath  +"\" %*\"";
             File.WriteAllText(projectDir + "fb.bat", BatchFileText);
 
@@ -365,6 +370,7 @@ namespace msfastbuild
 			OutputString.AppendFormat("\t\t\"TMP={0}\"\n", ActiveProject.GetProperty("Temp").EvaluatedValue);
 			OutputString.AppendFormat("\t\t\"TEMP={0}\"\n", ActiveProject.GetProperty("Temp").EvaluatedValue);
 			OutputString.AppendFormat("\t\t\"SystemRoot={0}\"\n", ActiveProject.GetProperty("SystemRoot").EvaluatedValue);
+			OutputString.Append("\t}\n}\n\n");
 
 			StringBuilder CompilerString = new StringBuilder("Compiler('msvc')\n{\n");
             
@@ -505,6 +511,8 @@ namespace msfastbuild
                 }
 
 				var LinkDefinitions = ActiveProject.ItemDefinitions["Link"];
+				string OutputFile = LinkDefinitions.GetMetadataValue("OutputFile").Replace('\\', '/');
+				foreach (var deps in CurrentProject.Dependents)
 				{
 					deps.AdditionalLinkInputs += " \"" + LinkDefinitions.GetMetadataValue("ImportLibrary") + "\" ";
 				}
@@ -542,6 +550,7 @@ namespace msfastbuild
                 }
 
 				var LibDefinitions = ActiveProject.ItemDefinitions["Lib"];
+				string OutputFile = LibDefinitions.GetMetadataValue("OutputFile").Replace('\\','/');
 				foreach (var deps in CurrentProject.Dependents)
 				{
 					deps.AdditionalLinkInputs += " \"" + OutputFile + "\" ";

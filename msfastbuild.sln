@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msfastbuild", "msfastbuild\msfastbuild.csproj", "{6666C056-1C15-4564-84F5-7B46B5F14D18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msfastbuildvsix", "msfastbuildvsix\msfastbuildvsix.csproj", "{C3B9AE8D-D192-4796-94C0-3DD192F8E7AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6666C056-1C15-4564-84F5-7B46B5F14D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6666C056-1C15-4564-84F5-7B46B5F14D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6666C056-1C15-4564-84F5-7B46B5F14D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6666C056-1C15-4564-84F5-7B46B5F14D18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3B9AE8D-D192-4796-94C0-3DD192F8E7AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3B9AE8D-D192-4796-94C0-3DD192F8E7AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3B9AE8D-D192-4796-94C0-3DD192F8E7AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3B9AE8D-D192-4796-94C0-3DD192F8E7AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

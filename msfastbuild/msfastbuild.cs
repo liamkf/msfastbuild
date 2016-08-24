@@ -34,7 +34,7 @@ namespace msfastbuild
 		HelpText = "Platform to build.")]
 		public string Platform { get; set; }
 
-        [Option('a', "fbargs", DefaultValue = "-ide",
+        [Option('a', "fbargs", DefaultValue = "-dist",
         HelpText = "Arguments to pass through to FASTBuild.")]
         public string FBArgs { get; set; }
 
@@ -43,12 +43,12 @@ namespace msfastbuild
         public bool BffOnly { get; set; }
 
         [Option('r', "regen", DefaultValue = true, //true for dev
-        HelpText = "Always regenerate the bff file.")]
+        HelpText = "If true, regenerate the bff file even when the project hasn't changed.")]
         public bool AlwaysRegenerate { get; set; }
 
 		//@"E:\fastbuild-dev\fastbuild\tmp\x64-Release\Tools\FBuild\FBuildApp\FBuild.exe"
 		[Option('b', "fbpath", DefaultValue = @"FBuild.exe",
-		HelpText = "Always regenerate the bff file.")]
+		HelpText = "Path to FASTBuild executable.")]
 		public string fbPath { get; set; }
 
 		[HelpOption]

@@ -1,3 +1,5 @@
+![msfastbuild example image](http://liam.flookes.com/msfastbuild.png "msfastbuild example")
+
 msfastbuild is a small utility to make it easier to use FASTBuild with vcxproj and solution files. The goal is to be able to take advantage of FASTBuild's nifty caching and distribution without having to hack out a bff file (FASTBuild's build format) as it can be confusing for newbies and annoying if it's not your project. The bff file it generates can also be a good starting point for a custom made bff file! It hashes the Visual Studio projects so it will only regenerate the bff file if things change and can take advantage of FASTBuild's speedy 'nothing to build' checks.
 
 To use it you need Visual Studio 2015 R3 installed and the FBuild.exe somewhere in your path (or to specify where it is using the -b argument). By default it passes -dist to FASTBuild, and relies on using the FASTBuild caching environment variables to control caching behaviour (i.e. it doesn't pass anything by default).
@@ -14,11 +16,11 @@ Or to select only one project in the solution and with different FASTBuild argum
 
 $>msfastbuild -s ./SDL.sln -p ./SDLMain/SDLMain.vcxproj -c Debug -f Win32 -a"-dist -ide"
 
-msfastbuild should parse the correct dependencies and build using FASTBuild, putting the output in the same place and using the same arguments as msbuild or Visual Studio would. Or at least that's the theory! 
+msfastbuild should (in theory) parse the correct dependencies and build using FASTBuild, putting the output in the same place and using the same arguments as msbuild or Visual Studio would.
 
 In practice there are quirks:
 
-- You need Visual Studio 2015 R3 installed, even if you're building against the 2013 tools. Things requiring 2012 tools do not build correctly. They could without a huge amount of work I think (should be a matter of referencing the right DLL and using Reflection), it just hasn't been done.
+- You need Visual Studio 2015 R3 installed, even if you're building against the 2013 tools. Things requiring 2012 tools do not build correctly. They could build without a huge amount of work I think (should be a matter of referencing the right DLL and using Reflection), it just hasn't been done.
 - Pre-link build events are not supported: I don't see a good way to inject it into the BFF without modifying FASTBuild. Again this could be done.
 - The AssemblerListingLocation option for compiling is not supported, remote builders complain. I haven't seen any projects using this, but I'm sure there are some.
 - The DesigntimePreprocessorDefinitions option for resource compiling is not supported.

@@ -616,7 +616,7 @@ namespace msfastbuild
 				var MatchingProps = Task.GetType().GetProperties().Where(prop => prop.Name == MetaData.Name);
 				if (MatchingProps.Any() && !string.IsNullOrEmpty(MetaData.EvaluatedValue))
 				{
-					string EvaluatedValue = MetaData.EvaluatedValue;
+					string EvaluatedValue = MetaData.EvaluatedValue.Trim();
 					if(MetaData.Name == "AdditionalIncludeDirectories")
 					{
 						EvaluatedValue = EvaluatedValue.Replace("\\\\", "\\");

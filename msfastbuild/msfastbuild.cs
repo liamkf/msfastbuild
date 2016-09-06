@@ -22,11 +22,11 @@ namespace msfastbuild
 		HelpText = "Path of vcproj to be built. Or name of vcproj if a solution is provided.")]
 		public string Project { get; set; }
 
-        [Option('s', "sln", DefaultValue = "",
-        HelpText = "sln which contains the vcproj.")]
-        public string Solution { get; set; }
+		[Option('s', "sln", DefaultValue = "",
+		HelpText = "sln which contains the vcproj.")]
+		public string Solution { get; set; }
 
-        [Option('c', "config", DefaultValue = "Debug",
+		[Option('c', "config", DefaultValue = "Debug",
 		HelpText = "Configuration to build.")]
 		public string Config { get; set; }
 
@@ -34,17 +34,17 @@ namespace msfastbuild
 		HelpText = "Platform to build.")]
 		public string Platform { get; set; }
 
-        [Option('a', "fbargs", DefaultValue = "-dist",
-        HelpText = "Arguments to pass through to FASTBuild.")]
-        public string FBArgs { get; set; }
-
-        [Option('b', "bffonly", DefaultValue = false,
-        HelpText = "Generate the bff file without calling FASTBuild.")]
-        public bool BffOnly { get; set; }
-
-        [Option('r', "regen", DefaultValue = true, //true for dev
-        HelpText = "If true, regenerate the bff file even when the project hasn't changed.")]
-        public bool AlwaysRegenerate { get; set; }
+		[Option('a', "fbargs", DefaultValue = "-dist",
+		HelpText = "Arguments to pass through to FASTBuild.")]
+		public string FBArgs { get; set; }
+		
+		[Option('b', "bffonly", DefaultValue = false,
+		HelpText = "Generate the bff file without calling FASTBuild.")]
+		public bool BffOnly { get; set; }
+		
+		[Option('r', "regen", DefaultValue = true, //true for dev
+		HelpText = "If true, regenerate the bff file even when the project hasn't changed.")]
+		public bool AlwaysRegenerate { get; set; }
 
 		//@"E:\fastbuild-dev\fastbuild\tmp\x64-Release\Tools\FBuild\FBuildApp\FBuild.exe"
 		[Option('b', "fbpath", DefaultValue = @"FBuild.exe",
@@ -61,24 +61,24 @@ namespace msfastbuild
 	public class msfastbuild
 	{
 		static public string PlatformToolsetVersion = "140";
-        static public string VCBasePath = "";
-        static public string BFFOutputFilePath = "fbuild.bff";
-        static public Options CommandLineOptions = new Options();
-        static public string WindowsSDKTarget = "10.0.10240.0";
-        static public MSFBProject CurrentProject;
+		static public string VCBasePath = "";
+		static public string BFFOutputFilePath = "fbuild.bff";
+		static public Options CommandLineOptions = new Options();
+		static public string WindowsSDKTarget = "10.0.10240.0";
+		static public MSFBProject CurrentProject;
 		static public Assembly CPPTasksAssembly;
 		static public string PreBuildBatchFile = "";
 		static public string PostBuildBatchFile = "";
 		static public string SolutionDir = "";
 
 		public enum BuildType
-        {
-            Application,
-            StaticLib,
-            DynamicLib
-        }
+		{
+		    Application,
+		    StaticLib,
+		    DynamicLib
+		}
 
-        static public BuildType BuildOutput = BuildType.Application;
+		static public BuildType BuildOutput = BuildType.Application;
 
 		public class MSFBProject
 		{
@@ -222,117 +222,117 @@ namespace msfastbuild
 		}
 
 		static public bool HasFileChanged(string InputFile, string Platform, string Config, out string MD5hash)
-        {
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                using (var stream = File.OpenRead(InputFile))
-                {
-                    MD5hash = ";" + InputFile + "_" + Platform + "_" + Config + "_" + BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
-                }
-            }
+		{
+			using (var md5 = System.Security.Cryptography.MD5.Create())
+			{
+				using (var stream = File.OpenRead(InputFile))
+				{
+				    MD5hash = ";" + InputFile + "_" + Platform + "_" + Config + "_" + BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+				}
+			}
+			
+			if (!File.Exists(BFFOutputFilePath))
+				return true;
+			
+			string FirstLine = File.ReadAllLines(BFFOutputFilePath).First(); //bit wasteful to read the whole file...
+			if (FirstLine == MD5hash) 
+				return false;
+			else
+				return true;
+		}
 
-            if (!File.Exists(BFFOutputFilePath))
-                return true;
-
-            string FirstLine = File.ReadAllLines(BFFOutputFilePath).First(); //bit wasteful to read the whole file...
-            if (FirstLine == MD5hash) 
-                return false;
-            else
-                return true;
-        }
-
-        static public bool ExecuteBffFile(string ProjectPath, string Platform)
-        {
+		static public bool ExecuteBffFile(string ProjectPath, string Platform)
+		{
 			string projectDir = Path.GetDirectoryName(ProjectPath) + "\\";
 
-            string BatchFileText = "@echo off\n%comspec% /c \"\"" + VCBasePath
-                + "vcvarsall.bat\" " + (Platform == "Win32" ? "x86" : "x64") + " " 
-                + (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") // Only VS2015R3 specifies the WinSDK?
-                + " && \"" + CommandLineOptions.fbPath  +"\" %*\"";
-            File.WriteAllText(projectDir + "fb.bat", BatchFileText);
+			string BatchFileText = "@echo off\n%comspec% /c \"\"" + VCBasePath
+				+ "vcvarsall.bat\" " + (Platform == "Win32" ? "x86" : "x64") + " " 
+				+ (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") // Only VS2015R3 specifies the WinSDK?
+				+ " && \"" + CommandLineOptions.fbPath  +"\" %*\"";
+			File.WriteAllText(projectDir + "fb.bat", BatchFileText);
 
 			Console.WriteLine("Building " + Path.GetFileNameWithoutExtension(ProjectPath));
 
-            try
-            {
-                System.Diagnostics.Process FBProcess = new System.Diagnostics.Process();
-                FBProcess.StartInfo.FileName = projectDir + "fb.bat";
-                FBProcess.StartInfo.Arguments = CommandLineOptions.FBArgs + " -config " + BFFOutputFilePath;
+			try
+			{
+				System.Diagnostics.Process FBProcess = new System.Diagnostics.Process();
+				FBProcess.StartInfo.FileName = projectDir + "fb.bat";
+				FBProcess.StartInfo.Arguments = CommandLineOptions.FBArgs + " -config " + BFFOutputFilePath;
 				FBProcess.StartInfo.RedirectStandardOutput = true;
-                FBProcess.StartInfo.UseShellExecute = false;
+				FBProcess.StartInfo.UseShellExecute = false;
 				FBProcess.StartInfo.WorkingDirectory = projectDir;
-
-                FBProcess.Start();
-                while (!FBProcess.StandardOutput.EndOfStream)
-                {
-                    Console.Write(FBProcess.StandardOutput.ReadLine() + "\n");
-                }
-                FBProcess.WaitForExit();
+			
+				FBProcess.Start();
+				while (!FBProcess.StandardOutput.EndOfStream)
+				{
+				    Console.Write(FBProcess.StandardOutput.ReadLine() + "\n");
+				}
+				FBProcess.WaitForExit();
 				return FBProcess.ExitCode == 0;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Problem launching fb.bat. Exception: " + e.Message);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Problem launching fb.bat. Exception: " + e.Message);
 				return false;
-            }
-        }
+			}
+		}
 
         public class ObjectListNode
         {
-            string Compiler;
-            string CompilerOutputPath;
-            string CompilerOptions;
-            string CompilerOutputExtension;
-			string PrecompiledHeaderString;
+		string Compiler;
+		string CompilerOutputPath;
+		string CompilerOptions;
+		string CompilerOutputExtension;
+		string PrecompiledHeaderString;
 
-            List<string> CompilerInputFiles;
-
-            public ObjectListNode(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions, string InPrecompiledHeaderString, string InCompilerOutputExtension = "")
-            {
-                CompilerInputFiles = new List<string>();
-                CompilerInputFiles.Add(InputFile);
-                Compiler = InCompiler;
-                CompilerOutputPath = InCompilerOutputPath;
-                CompilerOptions = InCompilerOptions;
-                CompilerOutputExtension = InCompilerOutputExtension;
-				PrecompiledHeaderString = InPrecompiledHeaderString;
-            }
-
-            public bool AddIfMatches(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions)
-            {
-                if(Compiler == InCompiler && CompilerOutputPath == InCompilerOutputPath && CompilerOptions == InCompilerOptions)
-                {
-                    CompilerInputFiles.Add(InputFile);
-                    return true;
-                }
-                return false;
-            }
-
-            public string ToString(int ActionNumber)
-            {
-                StringBuilder ObjectListString = new StringBuilder(string.Format("ObjectList('Action_{0}')\n{{\n", ActionNumber));
-                ObjectListString.AppendFormat("\t.Compiler = '{0}'\n",Compiler);
-                ObjectListString.AppendFormat("\t.CompilerOutputPath = \"{0}\"\n", CompilerOutputPath);
-                ObjectListString.AppendFormat("\t.CompilerInputFiles = {{ {0} }}\n", string.Join(",", CompilerInputFiles.ConvertAll(el => string.Format("'{0}'", el)).ToArray()));
-                ObjectListString.AppendFormat("\t.CompilerOptions = '{0}'\n", CompilerOptions);
-                if(!string.IsNullOrEmpty(CompilerOutputExtension))
-                {
-                    ObjectListString.AppendFormat("\t.CompilerOutputExtension = '{0}'\n", CompilerOutputExtension);
-                }
-				if(!string.IsNullOrEmpty(PrecompiledHeaderString))
-				{
-					ObjectListString.Append(PrecompiledHeaderString);
-				}
-				if(!string.IsNullOrEmpty(PreBuildBatchFile))
-				{
-					ObjectListString.Append("\t.PreBuildDependencies  = 'prebuild'\n");
-				}
-                ObjectListString.Append("}\n\n");
-                return ObjectListString.ToString();
-            }
+		List<string> CompilerInputFiles;
+		
+		public ObjectListNode(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions, string InPrecompiledHeaderString, string InCompilerOutputExtension = "")
+		{
+			CompilerInputFiles = new List<string>();
+			CompilerInputFiles.Add(InputFile);
+			Compiler = InCompiler;
+			CompilerOutputPath = InCompilerOutputPath;
+			CompilerOptions = InCompilerOptions;
+			CompilerOutputExtension = InCompilerOutputExtension;
+			PrecompiledHeaderString = InPrecompiledHeaderString;
+		}
+		
+		public bool AddIfMatches(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions)
+		{
+			if(Compiler == InCompiler && CompilerOutputPath == InCompilerOutputPath && CompilerOptions == InCompilerOptions)
+			{
+			    CompilerInputFiles.Add(InputFile);
+			    return true;
+			}
+			return false;
+		}
+		
+		public string ToString(int ActionNumber)
+		{
+			StringBuilder ObjectListString = new StringBuilder(string.Format("ObjectList('Action_{0}')\n{{\n", ActionNumber));
+			ObjectListString.AppendFormat("\t.Compiler = '{0}'\n",Compiler);
+			ObjectListString.AppendFormat("\t.CompilerOutputPath = \"{0}\"\n", CompilerOutputPath);
+			ObjectListString.AppendFormat("\t.CompilerInputFiles = {{ {0} }}\n", string.Join(",", CompilerInputFiles.ConvertAll(el => string.Format("'{0}'", el)).ToArray()));
+			ObjectListString.AppendFormat("\t.CompilerOptions = '{0}'\n", CompilerOptions);
+			if(!string.IsNullOrEmpty(CompilerOutputExtension))
+			{
+			    ObjectListString.AppendFormat("\t.CompilerOutputExtension = '{0}'\n", CompilerOutputExtension);
+			}
+			if(!string.IsNullOrEmpty(PrecompiledHeaderString))
+			{
+				ObjectListString.Append(PrecompiledHeaderString);
+			}
+			if(!string.IsNullOrEmpty(PreBuildBatchFile))
+			{
+				ObjectListString.Append("\t.PreBuildDependencies  = 'prebuild'\n");
+			}
+			ObjectListString.Append("}\n\n");
+			return ObjectListString.ToString();
+		}
         }
 
-        static private void GenerateBffFromVcxproj(string Config, string Platform)
+		static private void GenerateBffFromVcxproj(string Config, string Platform)
 		{
 			Project ActiveProject = CurrentProject.Proj;
 			string MD5hash = "wafflepalooza";
@@ -350,13 +350,13 @@ namespace msfastbuild
 			PlatformToolsetVersion = ActiveProject.GetProperty("PlatformToolsetVersion").EvaluatedValue;
 
 			string OutDir = ActiveProject.GetProperty("OutDir").EvaluatedValue;
-            string IntDir = ActiveProject.GetProperty("IntDir").EvaluatedValue;
+			string IntDir = ActiveProject.GetProperty("IntDir").EvaluatedValue;
 
 			StringBuilder OutputString = new StringBuilder(MD5hash + "\n\n");
 
 			OutputString.AppendFormat(".VSBasePath = '{0}'\n", ActiveProject.GetProperty("VSInstallDir").EvaluatedValue);
 			VCBasePath = ActiveProject.GetProperty("VCInstallDir").EvaluatedValue;
-            OutputString.AppendFormat(".VCBasePath = '{0}'\n", VCBasePath);
+			OutputString.AppendFormat(".VCBasePath = '{0}'\n", VCBasePath);
 
 			WindowsSDKTarget = ActiveProject.GetProperty("WindowsTargetPlatformVersion") != null ? ActiveProject.GetProperty("WindowsTargetPlatformVersion").EvaluatedValue : "8.1";
 
@@ -374,35 +374,35 @@ namespace msfastbuild
 
 			StringBuilder CompilerString = new StringBuilder("Compiler('msvc')\n{\n");
             
-            if(Platform == "Win64" || Platform == "x64")
-            {
-                CompilerString.Append("\t.Root = '$VSBasePath$/VC/bin/amd64'\n");
-            }
+			if(Platform == "Win64" || Platform == "x64")
+			{
+				CompilerString.Append("\t.Root = '$VSBasePath$/VC/bin/amd64'\n");
+			}
 			else if (Platform == "Win32" || Platform == "x86" || true) //Hmm.
 			{
 				CompilerString.Append("\t.Root = '$VSBasePath$/VC/bin'\n");
 			}
 			CompilerString.Append("\t.Executable = '$Root$/cl.exe'\n");
-            CompilerString.Append("\t.ExtraFiles =\n\t{\n");
-            CompilerString.Append("\t\t'$Root$/c1.dll'\n");
-            CompilerString.Append("\t\t'$Root$/c1xx.dll'\n");
-            CompilerString.Append("\t\t'$Root$/c2.dll'\n");
-            CompilerString.Append("\t\t'$Root$/1033/clui.dll'\n");
-            CompilerString.Append("\t\t'$Root$/mspdbsrv.exe'\n");
-            CompilerString.Append("\t\t'$Root$/mspdbcore.dll'\n");
-
-            CompilerString.AppendFormat("\t\t'$Root$/mspft{0}.dll'\n", PlatformToolsetVersion);
-            CompilerString.AppendFormat("\t\t'$Root$/msobj{0}.dll'\n", PlatformToolsetVersion);
+			CompilerString.Append("\t.ExtraFiles =\n\t{\n");
+			CompilerString.Append("\t\t'$Root$/c1.dll'\n");
+			CompilerString.Append("\t\t'$Root$/c1xx.dll'\n");
+			CompilerString.Append("\t\t'$Root$/c2.dll'\n");
+			CompilerString.Append("\t\t'$Root$/1033/clui.dll'\n");
+			CompilerString.Append("\t\t'$Root$/mspdbsrv.exe'\n");
+			CompilerString.Append("\t\t'$Root$/mspdbcore.dll'\n");
+			
+			CompilerString.AppendFormat("\t\t'$Root$/mspft{0}.dll'\n", PlatformToolsetVersion);
+			CompilerString.AppendFormat("\t\t'$Root$/msobj{0}.dll'\n", PlatformToolsetVersion);
 			CompilerString.AppendFormat("\t\t'$Root$/mspdb{0}.dll'\n", PlatformToolsetVersion);
-            CompilerString.AppendFormat("\t\t'$VSBasePath$/VC/redist/{0}/Microsoft.VC{1}.CRT/msvcp{1}.dll'\n", Platform == "Win32" ? "x86" : "x64", PlatformToolsetVersion);
-            CompilerString.AppendFormat("\t\t'$VSBasePath$/VC/redist/{0}/Microsoft.VC{1}.CRT/vccorlib{1}.dll'\n", Platform == "Win32" ? "x86" : "x64", PlatformToolsetVersion);
-
-            CompilerString.Append("\t}\n"); //End extra files
-            CompilerString.Append("}\n\n"); //End compiler
-
-            CompilerString.Append("Compiler('rc') { .Executable = '$WindowsSDKBasePath$\\bin\\x64\\rc.exe' }\n\n");
-
-            OutputString.Append(CompilerString);
+			CompilerString.AppendFormat("\t\t'$VSBasePath$/VC/redist/{0}/Microsoft.VC{1}.CRT/msvcp{1}.dll'\n", Platform == "Win32" ? "x86" : "x64", PlatformToolsetVersion);
+			CompilerString.AppendFormat("\t\t'$VSBasePath$/VC/redist/{0}/Microsoft.VC{1}.CRT/vccorlib{1}.dll'\n", Platform == "Win32" ? "x86" : "x64", PlatformToolsetVersion);
+			
+			CompilerString.Append("\t}\n"); //End extra files
+			CompilerString.Append("}\n\n"); //End compiler
+			
+			CompilerString.Append("Compiler('rc') { .Executable = '$WindowsSDKBasePath$\\bin\\x64\\rc.exe' }\n\n");
+			
+			OutputString.Append(CompilerString);
 
 			if (ActiveProject.GetItems("PreBuildEvent").Any())
 			{
@@ -430,14 +430,14 @@ namespace msfastbuild
 			string CompilerOptions = "";
 
 			List<ObjectListNode> ObjectLists = new List<ObjectListNode>();
-            var CompileItems = ActiveProject.GetItems("ClCompile");
+			var CompileItems = ActiveProject.GetItems("ClCompile");
 			string PrecompiledHeaderString = "";
-            foreach (var Item in CompileItems)
-            {
+			foreach (var Item in CompileItems)
+			{
 				if (Item.DirectMetadata.Any())
-                {
-                    if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
-                        continue;
+				{
+					if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
+	                			continue;
 					if (Item.DirectMetadata.Where(dmd => dmd.Name == "PrecompiledHeader" && dmd.EvaluatedValue == "Create").Any())
 					{
 						ToolTask CLtask = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.CL"));
@@ -449,67 +449,67 @@ namespace msfastbuild
 						continue;
 					}
 				}
-
+	
 				ToolTask Task = (ToolTask) Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.CL"));
 				Task.GetType().GetProperty("Sources").SetValue(Task, new TaskItem[] { new TaskItem() }); //CPPTasks throws an exception otherwise...
 				string TempCompilerOptions = GenerateTaskCommandLine(Task, new string[] { "ObjectFileName", "AssemblerListingLocation" }, Item.Metadata) + " /FS";
 				if (Path.GetExtension(Item.EvaluatedInclude) == ".c")
-                    TempCompilerOptions += " /TC";
-                else
-                    TempCompilerOptions += " /TP";
+					TempCompilerOptions += " /TC";
+				else
+					TempCompilerOptions += " /TP";
 				CompilerOptions = TempCompilerOptions;
-                string FormattedCompilerOptions = string.Format("\"%1\" /Fo\"%2\" {0}", TempCompilerOptions);
-                var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions));
-                if(!MatchingNodes.Any())
-                {
-                    ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions, PrecompiledHeaderString));
-                }
+				string FormattedCompilerOptions = string.Format("\"%1\" /Fo\"%2\" {0}", TempCompilerOptions);
+				var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions));
+				if(!MatchingNodes.Any())
+				{
+					ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions, PrecompiledHeaderString));
+				}
 			}
 
 			PrecompiledHeaderString = "";
 
 			var ResourceCompileItems = ActiveProject.GetItems("ResourceCompile");
-            foreach (var Item in ResourceCompileItems)
-            {
-                if (Item.DirectMetadata.Any())
-                {
-                    if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
-                        continue;
-                }
+			foreach (var Item in ResourceCompileItems)
+			{
+			if (Item.DirectMetadata.Any())
+			{
+			    if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
+			        continue;
+			}
+			
+			ToolTask Task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.RC"));
+			string ResourceCompilerOptions = GenerateTaskCommandLine(Task, new string[] { "ResourceOutputFileName", "DesigntimePreprocessorDefinitions" }, Item.Metadata);
+			
+			string formattedCompilerOptions = string.Format("{0} /fo\"%2\" \"%1\"", ResourceCompilerOptions);
+			var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions));
+			if (!MatchingNodes.Any())
+			{
+			    ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions, PrecompiledHeaderString, ".res"));
+			}
+			}
 
-				ToolTask Task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.RC"));
-				string ResourceCompilerOptions = GenerateTaskCommandLine(Task, new string[] { "ResourceOutputFileName", "DesigntimePreprocessorDefinitions" }, Item.Metadata);
-
-				string formattedCompilerOptions = string.Format("{0} /fo\"%2\" \"%1\"", ResourceCompilerOptions);
-                var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions));
-                if (!MatchingNodes.Any())
-                {
-                    ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions, PrecompiledHeaderString, ".res"));
-                }
-            }
-
-            int ActionNumber = 0;
-            foreach (ObjectListNode ObjList in ObjectLists)
-            {
+			int ActionNumber = 0;
+			foreach (ObjectListNode ObjList in ObjectLists)
+			{
 				OutputString.Append(ObjList.ToString(ActionNumber));
 				ActionNumber++;        
-            }
+			}
 
 			string CompileActions = string.Join(",", Enumerable.Range(0, ActionNumber).ToList().ConvertAll(x => string.Format("'Action_{0}'", x)).ToArray());
 
 			if (BuildOutput == BuildType.Application || BuildOutput == BuildType.DynamicLib)
-            {
+			{
 				OutputString.AppendFormat("{0}('output')\n{{", BuildOutput == BuildType.Application ? "Executable" : "DLL");
 
 				if (Platform == "Win32" || Platform == "x86")
-                {
+				{
 					OutputString.Append("\t.Linker = '$VSBasePath$\\VC\\bin\\link.exe'\n");
-                }
-                else
-                {
+				}
+				else
+				{
 					OutputString.Append("\t.Linker = '$VSBasePath$\\VC\\bin\\amd64\\link.exe'\n");
-                }
-
+				}
+        
 				var LinkDefinitions = ActiveProject.ItemDefinitions["Link"];
 				string OutputFile = LinkDefinitions.GetMetadataValue("OutputFile").Replace('\\', '/');
 				foreach (var deps in CurrentProject.Dependents)
@@ -532,22 +532,22 @@ namespace msfastbuild
 				OutputString.Append(" }\n");
 
 				OutputString.Append("}\n\n");
-            }
-            else if(BuildOutput == BuildType.StaticLib)
-            {
+			}
+			else if(BuildOutput == BuildType.StaticLib)
+			{
 				OutputString.Append("Library('output')\n{");
 				OutputString.Append("\t.Compiler = 'msvc'\n");
 				OutputString.Append(string.Format("\t.CompilerOptions = '\"%1\" /Fo\"%2\" /c {0}'\n", CompilerOptions));
 				OutputString.Append(string.Format("\t.CompilerOutputPath = \"{0}\"\n", IntDir));
 
-                if (Platform == "Win32" || Platform == "x86")
-                {
+				if (Platform == "Win32" || Platform == "x86")
+				{
 					OutputString.Append("\t.Librarian = '$VSBasePath$\\VC\\bin\\lib.exe'\n");
-                }
-                else
-                {
+				}
+				else
+				{
 					OutputString.Append("\t.Librarian = '$VSBasePath$\\VC\\bin\\amd64\\lib.exe'\n");
-                }
+				}
 
 				var LibDefinitions = ActiveProject.ItemDefinitions["Lib"];
 				string OutputFile = LibDefinitions.GetMetadataValue("OutputFile").Replace('\\','/');
@@ -569,7 +569,7 @@ namespace msfastbuild
 				OutputString.Append(" }\n");
 
 				OutputString.Append("}\n\n");
-            }
+			}
 
 			if (ActiveProject.GetItems("PostBuildEvent").Any())
 			{
@@ -597,11 +597,11 @@ namespace msfastbuild
 
 			OutputString.AppendFormat("Alias ('all')\n{{\n\t.Targets = {{ '{0}' }}\n}} ", string.IsNullOrEmpty(PostBuildBatchFile) ? "output" : "postbuild");
 
-            if(FileChanged || CommandLineOptions.AlwaysRegenerate)
-            {
-                File.WriteAllText(BFFOutputFilePath, OutputString.ToString());
-            }           
-        }
+			if(FileChanged || CommandLineOptions.AlwaysRegenerate)
+			{
+				File.WriteAllText(BFFOutputFilePath, OutputString.ToString());
+			}           
+		}
 
 		public static string GenerateTaskCommandLine(
 			ToolTask Task,
@@ -638,5 +638,5 @@ namespace msfastbuild
 			var GenCmdLineMethod = Task.GetType().GetRuntimeMethods().Where(meth => meth.Name == "GenerateCommandLine").First(); //Dubious
 			return GenCmdLineMethod.Invoke(Task, new object[] { Type.Missing, Type.Missing }) as string;
 		}
-    }
+	}
 }

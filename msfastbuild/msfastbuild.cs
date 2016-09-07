@@ -277,60 +277,60 @@ namespace msfastbuild
 			}
 		}
 
-        public class ObjectListNode
-        {
-		string Compiler;
-		string CompilerOutputPath;
-		string CompilerOptions;
-		string CompilerOutputExtension;
-		string PrecompiledHeaderString;
+		public class ObjectListNode
+		{
+			string Compiler;
+			string CompilerOutputPath;
+			string CompilerOptions;
+			string CompilerOutputExtension;
+			string PrecompiledHeaderString;
 
-		List<string> CompilerInputFiles;
+			List<string> CompilerInputFiles;
 		
-		public ObjectListNode(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions, string InPrecompiledHeaderString, string InCompilerOutputExtension = "")
-		{
-			CompilerInputFiles = new List<string>();
-			CompilerInputFiles.Add(InputFile);
-			Compiler = InCompiler;
-			CompilerOutputPath = InCompilerOutputPath;
-			CompilerOptions = InCompilerOptions;
-			CompilerOutputExtension = InCompilerOutputExtension;
-			PrecompiledHeaderString = InPrecompiledHeaderString;
-		}
+			public ObjectListNode(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions, string InPrecompiledHeaderString, string InCompilerOutputExtension = "")
+			{
+				CompilerInputFiles = new List<string>();
+				CompilerInputFiles.Add(InputFile);
+				Compiler = InCompiler;
+				CompilerOutputPath = InCompilerOutputPath;
+				CompilerOptions = InCompilerOptions;
+				CompilerOutputExtension = InCompilerOutputExtension;
+				PrecompiledHeaderString = InPrecompiledHeaderString;
+			}
 		
-		public bool AddIfMatches(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions)
-		{
-			if(Compiler == InCompiler && CompilerOutputPath == InCompilerOutputPath && CompilerOptions == InCompilerOptions)
+			public bool AddIfMatches(string InputFile, string InCompiler, string InCompilerOutputPath, string InCompilerOptions)
 			{
-			    CompilerInputFiles.Add(InputFile);
-			    return true;
+				if(Compiler == InCompiler && CompilerOutputPath == InCompilerOutputPath && CompilerOptions == InCompilerOptions)
+				{
+				    CompilerInputFiles.Add(InputFile);
+				    return true;
+				}
+				return false;
 			}
-			return false;
-		}
 		
-		public string ToString(int ActionNumber)
-		{
-			StringBuilder ObjectListString = new StringBuilder(string.Format("ObjectList('Action_{0}')\n{{\n", ActionNumber));
-			ObjectListString.AppendFormat("\t.Compiler = '{0}'\n",Compiler);
-			ObjectListString.AppendFormat("\t.CompilerOutputPath = \"{0}\"\n", CompilerOutputPath);
-			ObjectListString.AppendFormat("\t.CompilerInputFiles = {{ {0} }}\n", string.Join(",", CompilerInputFiles.ConvertAll(el => string.Format("'{0}'", el)).ToArray()));
-			ObjectListString.AppendFormat("\t.CompilerOptions = '{0}'\n", CompilerOptions);
-			if(!string.IsNullOrEmpty(CompilerOutputExtension))
+			public string ToString(int ActionNumber)
 			{
-			    ObjectListString.AppendFormat("\t.CompilerOutputExtension = '{0}'\n", CompilerOutputExtension);
+				StringBuilder ObjectListString = new StringBuilder(string.Format("ObjectList('Action_{0}')\n{{\n", ActionNumber));
+				ObjectListString.AppendFormat("\t.Compiler = '{0}'\n",Compiler);
+				ObjectListString.AppendFormat("\t.CompilerOutputPath = \"{0}\"\n", CompilerOutputPath);
+				ObjectListString.AppendFormat("\t.CompilerInputFiles = {{ {0} }}\n", string.Join(",", CompilerInputFiles.ConvertAll(el => string.Format("'{0}'", el)).ToArray()));
+				ObjectListString.AppendFormat("\t.CompilerOptions = '{0}'\n", CompilerOptions);
+				if(!string.IsNullOrEmpty(CompilerOutputExtension))
+				{
+				    ObjectListString.AppendFormat("\t.CompilerOutputExtension = '{0}'\n", CompilerOutputExtension);
+				}
+				if(!string.IsNullOrEmpty(PrecompiledHeaderString))
+				{
+					ObjectListString.Append(PrecompiledHeaderString);
+				}
+				if(!string.IsNullOrEmpty(PreBuildBatchFile))
+				{
+					ObjectListString.Append("\t.PreBuildDependencies  = 'prebuild'\n");
+				}
+				ObjectListString.Append("}\n\n");
+				return ObjectListString.ToString();
 			}
-			if(!string.IsNullOrEmpty(PrecompiledHeaderString))
-			{
-				ObjectListString.Append(PrecompiledHeaderString);
-			}
-			if(!string.IsNullOrEmpty(PreBuildBatchFile))
-			{
-				ObjectListString.Append("\t.PreBuildDependencies  = 'prebuild'\n");
-			}
-			ObjectListString.Append("}\n\n");
-			return ObjectListString.ToString();
 		}
-        }
 
 		static private void GenerateBffFromVcxproj(string Config, string Platform)
 		{
@@ -483,21 +483,21 @@ namespace msfastbuild
 			var ResourceCompileItems = ActiveProject.GetItems("ResourceCompile");
 			foreach (var Item in ResourceCompileItems)
 			{
-			if (Item.DirectMetadata.Any())
-			{
-			    if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
-			        continue;
-			}
+				if (Item.DirectMetadata.Any())
+				{
+					if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
+						continue;
+				}
 			
-			ToolTask Task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.RC"));
-			string ResourceCompilerOptions = GenerateTaskCommandLine(Task, new string[] { "ResourceOutputFileName", "DesigntimePreprocessorDefinitions" }, Item.Metadata);
+				ToolTask Task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.RC"));
+				string ResourceCompilerOptions = GenerateTaskCommandLine(Task, new string[] { "ResourceOutputFileName", "DesigntimePreprocessorDefinitions" }, Item.Metadata);
 			
-			string formattedCompilerOptions = string.Format("{0} /fo\"%2\" \"%1\"", ResourceCompilerOptions);
-			var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions));
-			if (!MatchingNodes.Any())
-			{
-			    ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions, PrecompiledHeaderString, ".res"));
-			}
+				string formattedCompilerOptions = string.Format("{0} /fo\"%2\" \"%1\"", ResourceCompilerOptions);
+				var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions));
+				if (!MatchingNodes.Any())
+				{
+					ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "rc", IntDir, formattedCompilerOptions, PrecompiledHeaderString, ".res"));
+				}
 			}
 
 			int ActionNumber = 0;

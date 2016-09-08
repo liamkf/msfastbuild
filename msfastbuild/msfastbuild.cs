@@ -42,7 +42,7 @@ namespace msfastbuild
 		HelpText = "Generate the bff file without calling FASTBuild.")]
 		public bool BffOnly { get; set; }
 		
-		[Option('r', "regen", DefaultValue = true, //true for dev
+		[Option('r', "regen", DefaultValue = false, //true for dev
 		HelpText = "If true, regenerate the bff file even when the project hasn't changed.")]
 		public bool AlwaysRegenerate { get; set; }
 
@@ -70,6 +70,7 @@ namespace msfastbuild
 		static public string PreBuildBatchFile = "";
 		static public string PostBuildBatchFile = "";
 		static public string SolutionDir = "";
+		static public bool HasCompileActions = true;
 
 		public enum BuildType
 		{
@@ -157,7 +158,7 @@ namespace msfastbuild
 
 				if (!CommandLineOptions.BffOnly)
 				{
-					if (!ExecuteBffFile(CurrentProject.Proj.FullPath, CommandLineOptions.Platform))
+					if (HasCompileActions && !ExecuteBffFile(CurrentProject.Proj.FullPath, CommandLineOptions.Platform))
 						break;
 					else
 						ProjectsBuilt++;
@@ -505,6 +506,16 @@ namespace msfastbuild
 			{
 				OutputString.Append(ObjList.ToString(ActionNumber));
 				ActionNumber++;        
+			}
+
+			if (ActionNumber > 0)
+			{
+				HasCompileActions = true;
+			}
+			else
+			{
+				HasCompileActions = false;
+				Console.WriteLine("Project has no actions to compile.");
 			}
 
 			string CompileActions = string.Join(",", Enumerable.Range(0, ActionNumber).ToList().ConvertAll(x => string.Format("'Action_{0}'", x)).ToArray());

@@ -537,7 +537,7 @@ namespace msfastbuild
 				string OutputFile = LinkDefinitions.GetMetadataValue("OutputFile").Replace('\\', '/');
 				foreach (var deps in CurrentProject.Dependents)
 				{
-					deps.AdditionalLinkInputs += " \"" + LinkDefinitions.GetMetadataValue("ImportLibrary") + "\" ";
+					deps.AdditionalLinkInputs += " \"" + Path.GetFullPath(LinkDefinitions.GetMetadataValue("ImportLibrary")).Replace('\\', '/');
 				}
 
 				ToolTask Task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.Link"));
@@ -574,9 +574,10 @@ namespace msfastbuild
 
 				var LibDefinitions = ActiveProject.ItemDefinitions["Lib"];
 				string OutputFile = LibDefinitions.GetMetadataValue("OutputFile").Replace('\\','/');
+
 				foreach (var deps in CurrentProject.Dependents)
 				{
-					deps.AdditionalLinkInputs += " \"" + OutputFile + "\" ";
+					deps.AdditionalLinkInputs += " \"" + Path.GetFullPath(OutputFile).Replace('\\', '/') + "\" ";
 				}
 				ToolTask task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.LIB"));
 				string linkerOptions = GenerateTaskCommandLine(task, new string[] { "OutputFile" }, LibDefinitions.Metadata);

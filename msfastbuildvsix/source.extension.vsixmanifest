@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="msfastbuildvsix.Liam Flookes.96368af6-dc99-4db2-b9a1-ac1cf1b8e612" Version="1.02" Language="en-US" Publisher="Liam Flookes" />
+    <Identity Id="msfastbuildvsix.Liam Flookes.96368af6-dc99-4db2-b9a1-ac1cf1b8e612" Version="1.03" Language="en-US" Publisher="Liam Flookes" />
     <DisplayName>msfastbuildvsix</DisplayName>
     <Description xml:space="preserve">Utility to allow distributed builds and caching using FASTBuild from Visual Studio.</Description>
     <MoreInfo>https://github.com/liamkf/fastbuild</MoreInfo>

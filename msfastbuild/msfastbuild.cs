@@ -38,9 +38,9 @@ namespace msfastbuild
 		HelpText = "Arguments to pass through to FASTBuild.")]
 		public string FBArgs { get; set; }
 		
-		[Option('b', "bffonly", DefaultValue = false,
+		[Option('g', "generateonly", DefaultValue = false,
 		HelpText = "Generate the bff file without calling FASTBuild.")]
-		public bool BffOnly { get; set; }
+		public bool GenerateOnly { get; set; }
 		
 		[Option('r', "regen", DefaultValue = false, //true for dev
 		HelpText = "If true, regenerate the bff file even when the project hasn't changed.")]
@@ -49,7 +49,7 @@ namespace msfastbuild
 		//@"E:\fastbuild-dev\fastbuild\tmp\x64-Release\Tools\FBuild\FBuildApp\FBuild.exe"
 		[Option('b', "fbpath", DefaultValue = @"FBuild.exe",
 		HelpText = "Path to FASTBuild executable.")]
-		public string fbPath { get; set; }
+		public string FBPath { get; set; }
 
 		[HelpOption]
 		public string GetUsage()
@@ -156,7 +156,7 @@ namespace msfastbuild
 				BFFOutputFilePath = Path.GetDirectoryName(CurrentProject.Proj.FullPath) + "\\" + Path.GetFileName(CurrentProject.Proj.FullPath) + "_" + CommandLineOptions.Config.Replace(" ", "") + "_" + CommandLineOptions.Platform.Replace(" ", "") + ".bff";
 				GenerateBffFromVcxproj(CommandLineOptions.Config, CommandLineOptions.Platform);
 
-				if (!CommandLineOptions.BffOnly)
+				if (!CommandLineOptions.GenerateOnly)
 				{
 					if (HasCompileActions && !ExecuteBffFile(CurrentProject.Proj.FullPath, CommandLineOptions.Platform))
 						break;
@@ -249,7 +249,7 @@ namespace msfastbuild
 			string BatchFileText = "@echo off\n%comspec% /c \"\"" + VCBasePath
 				+ "vcvarsall.bat\" " + (Platform == "Win32" ? "x86" : "x64") + " " 
 				+ (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") // Only VS2015R3 specifies the WinSDK?
-				+ " && \"" + CommandLineOptions.fbPath  +"\" %*\"";
+				+ " && \"" + CommandLineOptions.FBPath  +"\" %*\"";
 			File.WriteAllText(projectDir + "fb.bat", BatchFileText);
 
 			Console.WriteLine("Building " + Path.GetFileNameWithoutExtension(ProjectPath));

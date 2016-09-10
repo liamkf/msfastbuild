@@ -52,7 +52,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FASTBuild.cs" />
-    <Compile Include="FASTBuildPackage.cs" />
+    <Compile Include="FASTBuildPackage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

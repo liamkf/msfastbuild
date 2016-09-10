@@ -155,12 +155,12 @@ namespace msfastbuildvsix
 				}
 
 				fbPackage.m_outputPane.OutputString("Building " + Path.GetFileName(proj.ProjectFile) + " " + sc.Name + " " + sc.PlatformName + "\r");
-				fbCommandLine = string.Format("-p {0} -c {1} -f {2} -s {3} -a\"-dist -ide\"", Path.GetFileName(proj.ProjectFile), sc.Name, sc.PlatformName, sln.FileName);
+				fbCommandLine = string.Format("-p {0} -c {1} -f {2} -s {3} -a\"{4}\" -b \"{5}\"", Path.GetFileName(proj.ProjectFile), sc.Name, sc.PlatformName, sln.FileName, fbPackage.OptionFBArgs, fbPackage.OptionFBPath);
 				fbWorkingDirectory = Path.GetDirectoryName(proj.ProjectFile);
 			}
 			else
 			{
-				fbCommandLine = string.Format("-s {0} -c {1} -f {2} -a\"-dist -ide\"", sln.FileName, sc.Name, sc.PlatformName);
+				fbCommandLine = string.Format("-s {0} -c {1} -f {2} -a\"{3}\" -b \"{4}\"", sln.FileName, sc.Name, sc.PlatformName, fbPackage.OptionFBArgs, fbPackage.OptionFBPath);
 				fbWorkingDirectory = Path.GetDirectoryName(sln.FileName);
 			}
 

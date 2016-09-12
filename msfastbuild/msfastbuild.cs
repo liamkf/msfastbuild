@@ -388,7 +388,9 @@ namespace msfastbuild
 			CompilerString.Append("\t\t'$Root$/c1.dll'\n");
 			CompilerString.Append("\t\t'$Root$/c1xx.dll'\n");
 			CompilerString.Append("\t\t'$Root$/c2.dll'\n");
-			CompilerString.Append("\t\t'$Root$/1033/clui.dll'\n");
+
+			string InstalledLocalization = GetRegistryValue(@"Microsoft\VisualStudio\14.0\General", "UILanguage", "1033");
+			CompilerString.AppendFormat("\t\t'$Root$/{0}/clui.dll'\n", InstalledLocalization);
 			CompilerString.Append("\t\t'$Root$/mspdbsrv.exe'\n");
 			CompilerString.Append("\t\t'$Root$/mspdbcore.dll'\n");
 			
@@ -662,5 +664,27 @@ namespace msfastbuild
 			var GenCmdLineMethod = Task.GetType().GetRuntimeMethods().Where(meth => meth.Name == "GenerateCommandLine").First(); //Dubious
 			return GenCmdLineMethod.Invoke(Task, new object[] { Type.Missing, Type.Missing }) as string;
 		}
+
+		public static string GetRegistryValue(string keyName, string valueName, object defaultValue)
+		{
+			object returnValue = (string)Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\" + keyName, valueName, defaultValue);
+			if (returnValue != null)
+				return returnValue.ToString();
+
+			returnValue = Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\" + keyName, valueName, defaultValue);
+			if (returnValue != null)
+				return returnValue.ToString();
+
+			returnValue = (string)Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + keyName, valueName, defaultValue);
+			if (returnValue != null)
+				return returnValue.ToString();
+
+			returnValue = Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\" + keyName, valueName, defaultValue);
+			if (returnValue != null)
+				return returnValue.ToString();
+
+			return defaultValue.ToString();
+		}
 	}
+
 }

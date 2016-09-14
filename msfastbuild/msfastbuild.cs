@@ -337,7 +337,7 @@ namespace msfastbuild
 		{
 			Project ActiveProject = CurrentProject.Proj;
 			string MD5hash = "wafflepalooza";
-			bool FileChanged = HasFileChanged(CurrentProject.Proj.FullPath, Platform, Config, out MD5hash);
+			bool FileChanged = HasFileChanged(ActiveProject.FullPath, Platform, Config, out MD5hash);
 
 			string configType = ActiveProject.GetProperty("ConfigurationType").EvaluatedValue;
 			switch(configType)
@@ -418,8 +418,8 @@ namespace msfastbuild
 						string BatchText = "call \"" + VCBasePath + "vcvarsall.bat\" " + 
 							(Platform == "Win32" ? "x86" : "x64") + " "
 							+ (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") + "\n";
-						File.WriteAllText("prebuild.bat", BatchText + mdPi.EvaluatedValue);
-						PreBuildBatchFile = "prebuild.bat";
+						PreBuildBatchFile = Path.Combine(ActiveProject.DirectoryPath, Path.GetFileNameWithoutExtension(ActiveProject.FullPath) + "_prebuild.bat");
+						File.WriteAllText(PreBuildBatchFile, BatchText + mdPi.EvaluatedValue);						
 						OutputString.Append("Exec('prebuild') \n{\n");
 						OutputString.AppendFormat("\t.ExecExecutable = '{0}' \n", PreBuildBatchFile);
 						OutputString.AppendFormat("\t.ExecInput = '{0}' \n", PreBuildBatchFile);
@@ -622,8 +622,8 @@ namespace msfastbuild
 						string BatchText = "call \"" + VCBasePath + "vcvarsall.bat\" " +
 							   (Platform == "Win32" ? "x86" : "x64") + " "
 							   + (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") + "\n";
-						File.WriteAllText("postbuild.bat", BatchText + MetaData.EvaluatedValue);
-						PostBuildBatchFile = "postbuild.bat";
+						PostBuildBatchFile = Path.Combine(ActiveProject.DirectoryPath, Path.GetFileNameWithoutExtension(ActiveProject.FullPath) + "_postbuild.bat");
+						File.WriteAllText(PostBuildBatchFile, BatchText + MetaData.EvaluatedValue);
 						OutputString.Append("Exec('postbuild') \n{\n");
 						OutputString.AppendFormat("\t.ExecExecutable = '{0}' \n", PostBuildBatchFile);
 						OutputString.AppendFormat("\t.ExecInput = '{0}' \n", PostBuildBatchFile);

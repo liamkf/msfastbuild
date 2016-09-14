@@ -374,10 +374,12 @@ namespace msfastbuild
 			OutputString.Append("\t}\n}\n\n");
 
 			StringBuilder CompilerString = new StringBuilder("Compiler('msvc')\n{\n");
-            
-			if(Platform == "Win64" || Platform == "x64")
+
+			string CompilerRoot = CompilerRoot = VCBasePath + "bin/";
+			if (Platform == "Win64" || Platform == "x64")
 			{
 				CompilerString.Append("\t.Root = '$VSBasePath$/VC/bin/amd64'\n");
+				CompilerRoot += "amd64/";
 			}
 			else if (Platform == "Win32" || Platform == "x86" || true) //Hmm.
 			{
@@ -389,8 +391,20 @@ namespace msfastbuild
 			CompilerString.Append("\t\t'$Root$/c1xx.dll'\n");
 			CompilerString.Append("\t\t'$Root$/c2.dll'\n");
 
-			string InstalledLocalization = GetRegistryValue(@"Microsoft\VisualStudio\14.0\General", "UILanguage", "1033");
-			CompilerString.AppendFormat("\t\t'$Root$/{0}/clui.dll'\n", InstalledLocalization);
+			if(File.Exists(CompilerRoot + "1033/clui.dll")) //Check English first...
+			{
+				CompilerString.Append("\t\t'$Root$/1033/clui.dll'\n");
+			}
+			else
+			{
+				var numericDirectories = Directory.GetDirectories(CompilerRoot).Where(d => Path.GetFileName(d).All(char.IsDigit));
+				var cluiDirectories = numericDirectories.Where(d => Directory.GetFiles(d, "clui.dll").Any());
+				if(cluiDirectories.Any())
+				{
+					CompilerString.AppendFormat("\t\t'$Root$/{0}/clui.dll'\n", Path.GetFileName(cluiDirectories.First()));
+				}
+			}
+			
 			CompilerString.Append("\t\t'$Root$/mspdbsrv.exe'\n");
 			CompilerString.Append("\t\t'$Root$/mspdbcore.dll'\n");
 			
@@ -677,27 +691,6 @@ namespace msfastbuild
 
 			var GenCmdLineMethod = Task.GetType().GetRuntimeMethods().Where(meth => meth.Name == "GenerateCommandLine").First(); //Dubious
 			return GenCmdLineMethod.Invoke(Task, new object[] { Type.Missing, Type.Missing }) as string;
-		}
-
-		public static string GetRegistryValue(string keyName, string valueName, object defaultValue)
-		{
-			object returnValue = (string)Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\" + keyName, valueName, defaultValue);
-			if (returnValue != null)
-				return returnValue.ToString();
-
-			returnValue = Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\" + keyName, valueName, defaultValue);
-			if (returnValue != null)
-				return returnValue.ToString();
-
-			returnValue = (string)Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + keyName, valueName, defaultValue);
-			if (returnValue != null)
-				return returnValue.ToString();
-
-			returnValue = Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\" + keyName, valueName, defaultValue);
-			if (returnValue != null)
-				return returnValue.ToString();
-
-			return defaultValue.ToString();
 		}
 	}
 

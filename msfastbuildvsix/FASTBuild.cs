@@ -24,6 +24,7 @@ namespace msfastbuildvsix
         public const int CommandId = 0x0100;
 		public const int SlnCommandId = 0x0101;
 		public const int ContextCommandId = 0x0102;
+		public const int SlnContextCommandId = 0x0103;
 
 		/// <summary>
 		/// Command menu group (command set GUID).
@@ -61,6 +62,10 @@ namespace msfastbuildvsix
 				commandService.AddCommand(menuItem);
 
 				menuCommandID = new CommandID(CommandSet, ContextCommandId);
+				menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+				commandService.AddCommand(menuItem);
+
+				menuCommandID = new CommandID(CommandSet, SlnContextCommandId);
 				menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
 				commandService.AddCommand(menuItem);
 			}
@@ -127,7 +132,7 @@ namespace msfastbuildvsix
 			SolutionConfiguration2 sc = sb.ActiveConfiguration as SolutionConfiguration2;
 			VCProject proj = null;
 
-			if (eventSender.CommandID.ID != SlnCommandId)
+			if (eventSender.CommandID.ID != SlnCommandId && eventSender.CommandID.ID != SlnContextCommandId)
 			{
 				if (fbPackage.m_dte.SelectedItems.Count > 0)
 				{
@@ -167,7 +172,7 @@ namespace msfastbuildvsix
             string msfastbuildPath = Assembly.GetAssembly(typeof(msfastbuild.msfastbuild)).Location;
             try
             {
-				fbPackage.m_outputPane.OutputString("Launching FBuild with command line: " + fbCommandLine + "\r");
+				fbPackage.m_outputPane.OutputString("Launching msfastbuild with command line: " + fbCommandLine + "\r");
 
 				System.Diagnostics.Process FBProcess = new System.Diagnostics.Process();
                 FBProcess.StartInfo.FileName = msfastbuildPath;

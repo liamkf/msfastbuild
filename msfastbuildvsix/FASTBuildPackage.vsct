@@ -39,9 +39,12 @@
       <Group guid="guidFASTBuildPackageCmdSet" id="MyMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_BUILD" />
       </Group>
-      <Group guid="guidFASTBuildPackageCmdSet" id="ContextMenuGroup" priority="0x0000">
+      <Group guid="guidFASTBuildPackageCmdSet" id="ProjContextMenuGroup" priority="0x0000">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE" />
-      </Group>      
+      </Group>
+      <Group guid="guidFASTBuildPackageCmdSet" id="SlnContextMenuGroup" priority="0x0000">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE" />
+      </Group>
     </Groups>
 
     <!--Buttons section. -->
@@ -72,12 +75,21 @@
       </Button>
 
       <Button guid="guidFASTBuildPackageCmdSet" id="ContextMenuFASTBuildId" priority="0x0100" type="Button">
-        <Parent guid="guidFASTBuildPackageCmdSet" id="ContextMenuGroup" />
+        <Parent guid="guidFASTBuildPackageCmdSet" id="ProjContextMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>FASTBuild</ButtonText>
+          <ButtonText>FASTBuild Project</ButtonText>
         </Strings>
       </Button>
+
+      <Button guid="guidFASTBuildPackageCmdSet" id="SlnContextMenuFASTBuildId" priority="0x0100" type="Button">
+        <Parent guid="guidFASTBuildPackageCmdSet" id="SlnContextMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic2" />
+        <Strings>
+          <ButtonText>FASTBuild Solution</ButtonText>
+        </Strings>
+      </Button>
+
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -100,17 +112,15 @@
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="FASTBuildId" value="0x0100" />
       <IDSymbol name="SlnFASTBuildId" value="0x0101" />
-      <IDSymbol name="ContextMenuGroup" value="0x1080" />
+      <IDSymbol name="ProjContextMenuGroup" value="0x1080" />
       <IDSymbol name="ContextMenuFASTBuildId" value="0x0102" />
+      <IDSymbol name="SlnContextMenuGroup" value="0x1081" />
+      <IDSymbol name="SlnContextMenuFASTBuildId" value="0x0103" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{8bcbf9f0-c7c3-4a1e-89a0-fe5addf1b971}">
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />
-      <IDSymbol name="bmpPicSearch" value="3" />
-      <IDSymbol name="bmpPicX" value="4" />
-      <IDSymbol name="bmpPicArrows" value="5" />
-      <IDSymbol name="bmpPicStrikethrough" value="6" />
     </GuidSymbol>
  
   </Symbols>

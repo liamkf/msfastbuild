@@ -246,7 +246,8 @@ namespace msfastbuild
 		{
 			string projectDir = Path.GetDirectoryName(ProjectPath) + "\\";
 
-			string BatchFileText = "@echo off\n%comspec% /c \"\"" + VCBasePath
+			string BatchFileText = "@echo off\n"
+				+ "%comspec% /c \"\"" + VCBasePath
 				+ "vcvarsall.bat\" " + (Platform == "Win32" ? "x86" : "x64") + " " 
 				+ (PlatformToolsetVersion == "140" ? WindowsSDKTarget : "") // Only VS2015R3 specifies the WinSDK?
 				+ " && \"" + CommandLineOptions.FBPath  +"\" %*\"";
@@ -258,7 +259,7 @@ namespace msfastbuild
 			{
 				System.Diagnostics.Process FBProcess = new System.Diagnostics.Process();
 				FBProcess.StartInfo.FileName = projectDir + "fb.bat";
-				FBProcess.StartInfo.Arguments = CommandLineOptions.FBArgs + " -config " + BFFOutputFilePath;
+				FBProcess.StartInfo.Arguments = "-config \"" + BFFOutputFilePath + "\" " + CommandLineOptions.FBArgs;
 				FBProcess.StartInfo.RedirectStandardOutput = true;
 				FBProcess.StartInfo.UseShellExecute = false;
 				FBProcess.StartInfo.WorkingDirectory = projectDir;
@@ -337,6 +338,8 @@ namespace msfastbuild
 		{
 			Project ActiveProject = CurrentProject.Proj;
 			string MD5hash = "wafflepalooza";
+			PreBuildBatchFile = "";
+			PostBuildBatchFile = "";
 			bool FileChanged = HasFileChanged(ActiveProject.FullPath, Platform, Config, out MD5hash);
 
 			string configType = ActiveProject.GetProperty("ConfigurationType").EvaluatedValue;

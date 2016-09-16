@@ -555,15 +555,18 @@ namespace msfastbuild
 				var LinkDefinitions = ActiveProject.ItemDefinitions["Link"];
 				string OutputFile = LinkDefinitions.GetMetadataValue("OutputFile").Replace('\\', '/');
 
-				string DependencyOutputPath = LinkDefinitions.GetMetadataValue("ImportLibrary");
-				if (Path.IsPathRooted(DependencyOutputPath))
-					DependencyOutputPath = DependencyOutputPath.Replace('\\', '/');
-				else
-					DependencyOutputPath = Path.Combine(ActiveProject.DirectoryPath, DependencyOutputPath).Replace('\\', '/');
-
-				foreach (var deps in CurrentProject.Dependents)
+				if(HasCompileActions)
 				{
-					deps.AdditionalLinkInputs += " \"" + DependencyOutputPath + "\" ";
+					string DependencyOutputPath = LinkDefinitions.GetMetadataValue("ImportLibrary");
+					if (Path.IsPathRooted(DependencyOutputPath))
+						DependencyOutputPath = DependencyOutputPath.Replace('\\', '/');
+					else
+						DependencyOutputPath = Path.Combine(ActiveProject.DirectoryPath, DependencyOutputPath).Replace('\\', '/');
+
+					foreach (var deps in CurrentProject.Dependents)
+					{
+						deps.AdditionalLinkInputs += " \"" + DependencyOutputPath + "\" ";
+					}
 				}
 
 				ToolTask Task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.Link"));
@@ -601,15 +604,18 @@ namespace msfastbuild
 				var LibDefinitions = ActiveProject.ItemDefinitions["Lib"];
 				string OutputFile = LibDefinitions.GetMetadataValue("OutputFile").Replace('\\','/');
 
-				string DependencyOutputPath = "";
-				if (Path.IsPathRooted(OutputFile))
-					DependencyOutputPath = Path.GetFullPath(OutputFile).Replace('\\', '/');
-				else
-					DependencyOutputPath = Path.Combine(ActiveProject.DirectoryPath, OutputFile).Replace('\\', '/');
-
-				foreach (var deps in CurrentProject.Dependents)
+				if(HasCompileActions)
 				{
-					deps.AdditionalLinkInputs += " \"" + DependencyOutputPath + "\" ";
+					string DependencyOutputPath = "";
+					if (Path.IsPathRooted(OutputFile))
+						DependencyOutputPath = Path.GetFullPath(OutputFile).Replace('\\', '/');
+					else
+						DependencyOutputPath = Path.Combine(ActiveProject.DirectoryPath, OutputFile).Replace('\\', '/');
+
+					foreach (var deps in CurrentProject.Dependents)
+					{
+						deps.AdditionalLinkInputs += " \"" + DependencyOutputPath + "\" ";
+					}
 				}
 
 				ToolTask task = (ToolTask)Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.LIB"));

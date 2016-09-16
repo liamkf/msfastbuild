@@ -18,10 +18,11 @@ $>msfastbuild -s ./SDL.sln -p ./SDLMain/SDLMain.vcxproj -c Debug -f Win32 -a"-di
 
 msfastbuild should (in theory) parse the correct dependencies and build using FASTBuild, putting the output in the same place and using the same arguments as msbuild or Visual Studio would.
 
-In practice there are quirks:
+In practice there are quirks, some of which may be addressed as time goes by:
 
 - You need Visual Studio 2015 R3 installed, even if you're building against the 2013 tools. Things requiring 2012 tools do not build correctly. They could build without a huge amount of work I think (should be a matter of referencing the right DLL and using Reflection), it just hasn't been done.
 - Pre-link build events are not supported: I don't see a good way to inject it into the BFF without modifying FASTBuild. Again this could be done.
+- The "Use Library Dependency Inputs" option for project dependencies is not supported. For the most part everything will still build, but /INCREMENTAL linking will not be as effective if you are changing the libraries frequently.
 - The AssemblerListingLocation option for compiling is not supported, remote builders complain. I haven't seen any projects using this, but I'm sure there are some.
 - The DesigntimePreprocessorDefinitions option for resource compiling is not supported.
 - ProfileGuidedDatabase linking option is not supported as it was parsing strangely, and I think may require checking the global solution settings. I'm sure it could be supported if need be.

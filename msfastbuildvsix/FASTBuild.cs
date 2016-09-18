@@ -10,6 +10,7 @@ using System.Reflection;
 using System.IO;
 using EnvDTE;
 using EnvDTE80;
+using System.Text;
 
 namespace msfastbuildvsix
 {
@@ -181,6 +182,7 @@ namespace msfastbuildvsix
                 FBProcess.StartInfo.RedirectStandardOutput = true;
                 FBProcess.StartInfo.UseShellExecute = false;
                 FBProcess.StartInfo.CreateNoWindow = true;
+                FBProcess.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("ibm850");
 
                 System.Diagnostics.DataReceivedEventHandler OutputEventHandler = (Sender, Args) => {
                     if (Args.Data != null)

@@ -263,7 +263,6 @@ namespace msfastbuild
 				FBProcess.StartInfo.RedirectStandardOutput = true;
 				FBProcess.StartInfo.UseShellExecute = false;
 				FBProcess.StartInfo.WorkingDirectory = projectDir;
-				FBProcess.StartInfo.StandardOutputEncoding = Console.OutputEncoding;
 
 				FBProcess.Start();
 				while (!FBProcess.StandardOutput.EndOfStream)

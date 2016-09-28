@@ -100,14 +100,17 @@ namespace msfastbuildvsix
             Instance = new FASTBuild(package);
         }
 
-        /// <summary>
-        /// This function is the callback used to execute the command when the menu item is clicked.
-        /// See the constructor to see how the menu item is associated with this function using
-        /// OleMenuCommandService service and MenuCommand class.
-        /// </summary>
-        /// <param name="sender">Event sender.</param>
-        /// <param name="e">Event args.</param>
-        private void MenuItemCallback(object sender, EventArgs e)
+		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		public static extern int GetSystemDefaultLCID();
+
+		/// <summary>
+		/// This function is the callback used to execute the command when the menu item is clicked.
+		/// See the constructor to see how the menu item is associated with this function using
+		/// OleMenuCommandService service and MenuCommand class.
+		/// </summary>
+		/// <param name="sender">Event sender.</param>
+		/// <param name="e">Event args.</param>
+		private void MenuItemCallback(object sender, EventArgs e)
         {
             FASTBuildPackage fbPackage = (FASTBuildPackage)this.package;
             if (null == fbPackage.m_dte.Solution)
@@ -115,14 +118,22 @@ namespace msfastbuildvsix
 
 			MenuCommand eventSender = sender as MenuCommand;
 
+			fbPackage.m_outputPane.Activate();
+			fbPackage.m_outputPane.Clear();
+
 			if (eventSender == null)
 			{
 				fbPackage.m_outputPane.OutputString("VSIX failed to cast sender to OleMenuCommand.\r");
 				return;
 			}
 
-			fbPackage.m_outputPane.Activate();
-			fbPackage.m_outputPane.Clear();
+			if (fbPackage.m_dte.Debugger.CurrentMode != dbgDebugMode.dbgDesignMode)
+			{
+				fbPackage.m_outputPane.OutputString("Build not launched due to active debugger.\r");
+				return;
+			}
+
+			fbPackage.m_dte.ExecuteCommand("File.SaveAll");
 
 			string fbCommandLine = "";
 			string fbWorkingDirectory = "";
@@ -181,8 +192,10 @@ namespace msfastbuildvsix
                 FBProcess.StartInfo.RedirectStandardOutput = true;
                 FBProcess.StartInfo.UseShellExecute = false;
                 FBProcess.StartInfo.CreateNoWindow = true;
+				var SystemEncoding = System.Globalization.CultureInfo.GetCultureInfo(GetSystemDefaultLCID()).TextInfo.OEMCodePage;
+				FBProcess.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(SystemEncoding);
 
-                System.Diagnostics.DataReceivedEventHandler OutputEventHandler = (Sender, Args) => {
+				System.Diagnostics.DataReceivedEventHandler OutputEventHandler = (Sender, Args) => {
                     if (Args.Data != null)
                         fbPackage.m_outputPane.OutputString(Args.Data + "\r");
                 };

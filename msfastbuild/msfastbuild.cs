@@ -172,7 +172,6 @@ namespace msfastbuild
 		{
 			if (!string.IsNullOrEmpty(ProjectPath) && File.Exists(ProjectPath))
 			{
-				ProjectCollection projColl = new ProjectCollection();
 				try
 				{
 					MSFBProject newProj = evaluatedProjects.Find(elem => elem.Proj.FullPath == Path.GetFullPath(ProjectPath));
@@ -184,6 +183,9 @@ namespace msfastbuild
 					}
 					else
 					{
+						ProjectCollection projColl = new ProjectCollection();
+						if (!string.IsNullOrEmpty(SolutionDir))
+							projColl.SetGlobalProperty("SolutionDir", SolutionDir);
 						newProj = new MSFBProject();
 						Project proj = projColl.LoadProject(ProjectPath);
 

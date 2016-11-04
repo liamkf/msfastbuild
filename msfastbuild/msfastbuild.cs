@@ -205,7 +205,7 @@ namespace msfastbuild
 							var ProjectReferences = proj.Items.Where(elem => elem.ItemType == "ProjectReference");
 							foreach (var ProjRef in ProjectReferences)
 							{
-								if (ProjRef.GetMetadataValue("ReferenceOutputAssembly") == "true")
+								if (ProjRef.GetMetadataValue("ReferenceOutputAssembly") == "true" || ProjRef.GetMetadataValue("LinkLibraryDependencies") == "true")
 								{
 									//Console.WriteLine(string.Format("{0} referenced by {1}.", Path.GetFileNameWithoutExtension(ProjRef.EvaluatedInclude), Path.GetFileNameWithoutExtension(proj.FullPath)));
 									EvaluateProjectReferences(Path.GetDirectoryName(proj.FullPath) + Path.DirectorySeparatorChar + ProjRef.EvaluatedInclude, evaluatedProjects, newProj);

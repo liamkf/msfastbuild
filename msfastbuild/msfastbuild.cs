@@ -152,7 +152,29 @@ namespace msfastbuild
 			foreach(MSFBProject project in EvaluatedProjects)
 			{
 				CurrentProject = project;
-				CPPTasksAssembly = Assembly.LoadFrom(CurrentProject.Proj.GetPropertyValue("VCTargetsPath14") + "Microsoft.Build.CPPTasks.Common.dll"); //Dodgy? VCTargetsPath may not be there...
+                //MSBuild 15 (2017?) may not provide these properties. 
+                string VCTargetsPath = CurrentProject.Proj.GetPropertyValue("VCTargetsPath14");
+                if(string.IsNullOrEmpty(VCTargetsPath))
+                {
+                    VCTargetsPath = CurrentProject.Proj.GetPropertyValue("VCTargetsPath");
+                }
+                if(string.IsNullOrEmpty(VCTargetsPath))
+                {
+                    VCTargetsPath = CurrentProject.Proj.GetPropertyValue("VCTargetsPathActual");
+                }
+                if(string.IsNullOrEmpty(VCTargetsPath))
+                {
+                    Console.WriteLine("Failed to evaluate VCTargetsPath variable on " + Path.GetFileName(CurrentProject.Proj.FullPath) + ". Is this a supported version of Visual Studio?");
+                    continue;
+                }
+                string BuildDllPath = VCTargetsPath + "Microsoft.Build.CPPTasks.Common.dll";
+                if(!File.Exists(BuildDllPath))
+                {
+                    Console.WriteLine("Failed to find " + BuildDllPath + ". Is this a supported version of Visual Studio?");
+                    continue;
+                }
+
+                CPPTasksAssembly = Assembly.LoadFrom(BuildDllPath);
 				BFFOutputFilePath = Path.GetDirectoryName(CurrentProject.Proj.FullPath) + "\\" + Path.GetFileName(CurrentProject.Proj.FullPath) + "_" + CommandLineOptions.Config.Replace(" ", "") + "_" + CommandLineOptions.Platform.Replace(" ", "") + ".bff";
 				GenerateBffFromVcxproj(CommandLineOptions.Config, CommandLineOptions.Platform);
 

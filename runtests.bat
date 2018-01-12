@@ -1,5 +1,5 @@
 set ShouldPause=1
-set FBPath="E:\fastbuild-dev\fastbuild\tmp\x64-Release\Tools\FBuild\FBuildApp\FBuild.exe"
+set FBPath="E:\fastbuild\fastbuild\tmp\x64-Release\Tools\FBuild\FBuildApp\FBuild.exe"
 set FBArgs="-dist -ide -clean"
 cd %~dp0\tests\bees\solution
 "%~dp0/msfastbuild/bin/Debug/msfastbuild.exe" -p bees.vcxproj -c Debug -f Win32 -a%FBArgs% -b%FBPath%

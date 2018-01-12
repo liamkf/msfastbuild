@@ -103,6 +103,32 @@ namespace msfastbuildvsix
 		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
 		public static extern int GetSystemDefaultLCID();
 
+		private bool IsFBuildFindable(string FBuildExePath)
+		{
+			string fbuild = "fbuild.exe";
+
+			if (FBuildExePath != fbuild)
+			{
+				return File.Exists(FBuildExePath);
+			}
+
+			string PathVariable = Environment.GetEnvironmentVariable("PATH");
+			foreach (string SearchPath in PathVariable.Split(Path.PathSeparator))
+			{
+				try
+				{
+					string PotentialPath = Path.Combine(SearchPath, fbuild);
+					if (File.Exists(PotentialPath))
+					{
+						return true;
+					}
+				}
+				catch (ArgumentException)
+				{ }
+			}
+			return false;
+		}
+
 		/// <summary>
 		/// This function is the callback used to execute the command when the menu item is clicked.
 		/// See the constructor to see how the menu item is associated with this function using
@@ -130,6 +156,12 @@ namespace msfastbuildvsix
 			if (fbPackage.m_dte.Debugger.CurrentMode != dbgDebugMode.dbgDesignMode)
 			{
 				fbPackage.m_outputPane.OutputString("Build not launched due to active debugger.\r");
+				return;
+			}
+
+			if(!IsFBuildFindable(fbPackage.OptionFBPath))
+			{
+				fbPackage.m_outputPane.OutputString(string.Format("Could not find fbuild at the provided path: {0}, please verify in the msfastbuild options.\r", fbPackage.OptionFBPath));
 				return;
 			}
 

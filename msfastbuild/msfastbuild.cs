@@ -477,12 +477,16 @@ namespace msfastbuild
 
 			foreach (var Item in CompileItems)
 			{
+				string ItemPrecompiledHeaderString = PrecompiledHeaderString;
+
 				if (Item.DirectMetadata.Any())
 				{
 					if (Item.DirectMetadata.Where(dmd => dmd.Name == "ExcludedFromBuild" && dmd.EvaluatedValue == "true").Any())
 						continue;
 					if (Item.DirectMetadata.Where(dmd => dmd.Name == "PrecompiledHeader" && dmd.EvaluatedValue == "Create").Any())
 						continue;
+					if (Item.DirectMetadata.Where(dmd => dmd.Name == "PrecompiledHeader" && (dmd.EvaluatedValue == "NotUsing" || dmd.EvaluatedValue == "")).Any())
+						ItemPrecompiledHeaderString = "";
 				}
 	
 				ToolTask Task = (ToolTask) Activator.CreateInstance(CPPTasksAssembly.GetType("Microsoft.Build.CPPTasks.CL"));
@@ -497,7 +501,7 @@ namespace msfastbuild
 				var MatchingNodes = ObjectLists.Where(el => el.AddIfMatches(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions));
 				if(!MatchingNodes.Any())
 				{
-					ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions, PrecompiledHeaderString));
+					ObjectLists.Add(new ObjectListNode(Item.EvaluatedInclude, "msvc", IntDir, FormattedCompilerOptions, ItemPrecompiledHeaderString));
 				}
 			}
 

@@ -302,4 +302,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-tests/*
+externaltests/*
+tests/**/*.fdb
+tests/**/*.bat
+tests/**/*.bff
+tests/**/*.txt

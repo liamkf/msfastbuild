@@ -16,6 +16,7 @@ namespace msfastbuildvsix
 	{
 		private string FBArgs = "-dist -ide";
 		private string FBPath = "fbuild.exe";
+		private bool FBUnity = false;
 
 		[Category("msfastbuild")]
 		[DisplayName("FASTBuild arguments")]
@@ -34,35 +35,44 @@ namespace msfastbuildvsix
 			get { return FBPath; }
 			set { FBPath = value; }
 		}
+
+		[Category("msfastbuild")]
+		[DisplayName("Use unity files")]
+		[Description("Whether to attempt to use 'unity' files to speed up compilation. May require modifying some headers.")]
+		public bool OptionFBUnity
+		{
+			get { return FBUnity; }
+			set { FBUnity = value; }
+		}
 	}
 
 	[PackageRegistration(UseManagedResourcesOnly = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
-    [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(FASTBuildPackage.PackageGuidString)]
+	[InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
+	[ProvideMenuResource("Menus.ctmenu", 1)]
+	[Guid(FASTBuildPackage.PackageGuidString)]
 	[ProvideOptionPage(typeof(OptionPageGrid),
 	"msfastbuild", "Options", 0, 0, true)]
 	[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    public sealed class FASTBuildPackage : Package
-    {
-        /// <summary>
-        /// FASTBuildPackage GUID string.
-        /// </summary>
-        public const string PackageGuidString = "b5f4430f-5f92-4bf7-8c27-ed6e0eadacdc";
+	public sealed class FASTBuildPackage : Package
+	{
+		/// <summary>
+		/// FASTBuildPackage GUID string.
+		/// </summary>
+		public const string PackageGuidString = "b5f4430f-5f92-4bf7-8c27-ed6e0eadacdc";
 
-        public DTE2 m_dte;
-        public OutputWindowPane m_outputPane;
+		public DTE2 m_dte;
+		public OutputWindowPane m_outputPane;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FASTBuild"/> class.
-        /// </summary>
-        public FASTBuildPackage()
-        {
-            // Inside this method you can place any initialization code that does not require
-            // any Visual Studio service because at this point the package object is created but
-            // not sited yet inside Visual Studio environment. The place to do all the other
-            // initialization is the Initialize method.
-        }
+		/// <summary>
+		/// Initializes a new instance of the <see cref="FASTBuild"/> class.
+		/// </summary>
+		public FASTBuildPackage()
+		{
+			// Inside this method you can place any initialization code that does not require
+			// any Visual Studio service because at this point the package object is created but
+			// not sited yet inside Visual Studio environment. The place to do all the other
+			// initialization is the Initialize method.
+		}
 
 		public string OptionFBArgs
 		{
@@ -82,6 +92,15 @@ namespace msfastbuildvsix
 			}
 		}
 
+		public bool OptionFBUnity
+		{
+			get
+			{
+				OptionPageGrid page = (OptionPageGrid)GetDialogPage(typeof(OptionPageGrid));
+				return page.OptionFBUnity;
+			}
+		}
+
 		#region Package Members
 
 		/// <summary>
@@ -89,17 +108,17 @@ namespace msfastbuildvsix
 		/// where you can put all the initialization code that rely on services provided by VisualStudio.
 		/// </summary>
 		protected override void Initialize()
-        {
-            FASTBuild.Initialize(this);
-            base.Initialize();
+		{
+			FASTBuild.Initialize(this);
+			base.Initialize();
 
 			m_dte = (DTE2)GetService(typeof(DTE));
-            OutputWindow outputWindow = m_dte.ToolWindows.OutputWindow;
+			OutputWindow outputWindow = m_dte.ToolWindows.OutputWindow;
 
-            m_outputPane = outputWindow.OutputWindowPanes.Add("FASTBuild");
-            m_outputPane.OutputString("FASTBuild\r");
+			m_outputPane = outputWindow.OutputWindowPanes.Add("FASTBuild");
+			m_outputPane.OutputString("FASTBuild\r");
 		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

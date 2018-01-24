@@ -212,35 +212,40 @@ namespace msfastbuildvsix
 				fbWorkingDirectory = Path.GetDirectoryName(sln.FileName);
 			}
 
-            string msfastbuildPath = Assembly.GetAssembly(typeof(msfastbuild.msfastbuild)).Location;
-            try
-            {
+			if(fbPackage.OptionFBUnity)
+			{
+				fbCommandLine += " -u true";
+			}
+
+			string msfastbuildPath = Assembly.GetAssembly(typeof(msfastbuild.msfastbuild)).Location;
+			try
+			{
 				fbPackage.m_outputPane.OutputString("Launching msfastbuild with command line: " + fbCommandLine + "\r");
 
 				System.Diagnostics.Process FBProcess = new System.Diagnostics.Process();
-                FBProcess.StartInfo.FileName = msfastbuildPath;
+				FBProcess.StartInfo.FileName = msfastbuildPath;
 				FBProcess.StartInfo.Arguments = fbCommandLine;
 				FBProcess.StartInfo.WorkingDirectory = fbWorkingDirectory;
-                FBProcess.StartInfo.RedirectStandardOutput = true;
-                FBProcess.StartInfo.UseShellExecute = false;
-                FBProcess.StartInfo.CreateNoWindow = true;
+				FBProcess.StartInfo.RedirectStandardOutput = true;
+				FBProcess.StartInfo.UseShellExecute = false;
+				FBProcess.StartInfo.CreateNoWindow = true;
 				var SystemEncoding = System.Globalization.CultureInfo.GetCultureInfo(GetSystemDefaultLCID()).TextInfo.OEMCodePage;
 				FBProcess.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(SystemEncoding);
 
 				System.Diagnostics.DataReceivedEventHandler OutputEventHandler = (Sender, Args) => {
-                    if (Args.Data != null)
-                        fbPackage.m_outputPane.OutputString(Args.Data + "\r");
-                };
+					if (Args.Data != null)
+						fbPackage.m_outputPane.OutputString(Args.Data + "\r");
+				};
 
-                FBProcess.OutputDataReceived += OutputEventHandler;
-                FBProcess.Start();
-                FBProcess.BeginOutputReadLine();
-                //FBProcess.WaitForExit();
-            }
-            catch (Exception ex)
-            {
+				FBProcess.OutputDataReceived += OutputEventHandler;
+				FBProcess.Start();
+				FBProcess.BeginOutputReadLine();
+				//FBProcess.WaitForExit();
+			}
+			catch (Exception ex)
+			{
 				fbPackage.m_outputPane.OutputString("VSIX exception launching msfastbuild. Could be a broken VSIX? Exception: " + ex.Message + "\r");
-            }
-        }
-    }
+			}
+		}
+	}
 }

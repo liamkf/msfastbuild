@@ -632,7 +632,13 @@ namespace msfastbuild
 				{
 					LinkerOptions += CurrentProject.AdditionalLinkInputs;
 				}
-				OutputString.AppendFormat("\t.LinkerOptions = '\"%1\" /OUT:\"%2\" {0}'\n", LinkerOptions.Replace("'","^'"));
+				
+				LinkerOptions = LinkerOptions
+					.Replace("'", "^'")
+					.Replace("\n", string.Empty)
+					.Replace("\r", string.Empty);
+
+				OutputString.AppendFormat("\t.LinkerOptions = '\"%1\" /OUT:\"%2\" {0}'\n", LinkerOptions);
 				OutputString.AppendFormat("\t.LinkerOutput = '{0}'\n", OutputFile);
 
 				OutputString.Append("\t.Libraries = { ");

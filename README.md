@@ -1,10 +1,12 @@
 ![msfastbuild example image](http://liam.flookes.com/msfastbuild.png "msfastbuild example")
 
-msfastbuild is a utility to make it easier to use [FASTBuild](https://github.com/fastbuild/fastbuild) with Visual Studio vcxproj and solution files. The goal is to be able to take advantage of FASTBuild's nifty caching and distribution without needing to hack out a bff file (FASTBuild's build file format) as it can be confusing at first and annoying if it's not your project or you already have everything in your project files.
+*** Archived ***
+
+msfastbuild is a utility to make it easier to use [FASTBuild](https://github.com/fastbuild/fastbuild) with Visual Studio 2015 vcxproj and solution files. The goal is to be able to take advantage of FASTBuild's nifty caching and distribution without needing to hack out a bff file (FASTBuild's build file format) as it can be confusing at first and annoying if it's not your project or you already have everything in your project files.
 
 The bff file it generates can also be a good starting point for a custom made bff file. msfastbuild hashes the Visual Studio projects so it will only regenerate the bff file if things change and can take advantage of FASTBuild's speedy 'nothing to build' checks.
 
-It's a work in progress, but it has been used successfully with the majority of Visual Studio 2015 projects attempted. The VSIX plugin for Visual Studio 2015 adds "FASTBuild Project" and "FASTBuild solution" options to the Build menu, and it should also be usable from the commandline.
+It's a work in progress, but it has been used successfully for many Visual Studio 2015 projects. The VSIX plugin for Visual Studio 2015 adds "FASTBuild Project" and "FASTBuild solution" options to the Build menu, and it should also be usable from the commandline.
 
 ## Setup
 
@@ -58,6 +60,6 @@ Some of these were modified to use VS2015:
 - Gross middleware
 - cocos2d-x, required moving the prelink event to prebuild... which seemed fine, and adjusting some "int/\*bool\*/param" type constructs which preprocess oddly
 
-## WIP
+## No longer being updated or supported.
 
-There's a lot of room for improvement, but if there's a VS2015 project that doesn't work... let me know and I'll see if I can hack out why! Pull requests of course are very welcome! :)
+There remains a lot of room for improvement, however I currently have no current plans (as of November 2022) to update this to support later versions of Visual Studio. There have been many promising forks looking to add support for later versions that interested parties may want to peruse!
